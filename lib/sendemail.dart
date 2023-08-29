@@ -47,12 +47,12 @@ class _sendEmailState extends State<sendEmail> {
       showDialog(
         context: context,
         builder: (context) => AlertDialog(
-          title: Text('Email App Not Found'),
-          content: Text('No email app is available on this device.'),
+          title: const Text('Email App Not Found'),
+          content: const Text('No email app is available on this device.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('OK'),
+              child: const Text('OK'),
             ),
           ],
         ),
@@ -64,7 +64,7 @@ class _sendEmailState extends State<sendEmail> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Send Email'),
+        title: const Text('Send Email'),
       ),
       body: Center(
           child: Column(
@@ -86,32 +86,32 @@ class _sendEmailState extends State<sendEmail> {
                   ),
                 );
               },
-              child: Text('Edit'),
               style: TextButton.styleFrom(
                 foregroundColor: Colors.blue,
               ),
+              child: const Text('Edit'),
             ),
           ]),
           CircleAvatar(
             radius: 50,
             backgroundImage: NetworkImage(widget.initialAvatar),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text(
             '${widget.initialFirstName} ${widget.initialLastName}',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 24,
               fontWeight: FontWeight.bold,
             ),
           ),
           Text(
             ' ${widget.initialEmail}',
-            style: TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 16),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           ElevatedButton(
             onPressed: _sendEmail,
-            child: Text('Send Email'),
+            child: const Text('Send Email'),
           ),
         ],
       )),
