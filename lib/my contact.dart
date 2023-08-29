@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:http/http.dart' as http;
@@ -56,7 +57,9 @@ class _MyContactState extends State<MyContact> {
         throw Exception('Failed to delete contact');
       }
     } catch (error) {
-      print(error);
+      if (kDebugMode) {
+        print(error);
+      }
     }
   }
 
@@ -197,6 +200,7 @@ class _MyContactState extends State<MyContact> {
     setState(() {
       final index = _allContacts.indexOf(contact);
       _allContacts[index].isFav = !_allContacts[index].isFav;
+
       if (_filteredContacts.contains(contact)) {
         final filteredIndex = _filteredContacts.indexOf(contact);
         _filteredContacts[filteredIndex].isFav =
@@ -239,7 +243,7 @@ class _MyContactState extends State<MyContact> {
           fontWeight: FontWeight.bold,
           fontSize: 20,
         ),
-        backgroundColor: Color.fromARGB(255, 73, 182, 167),
+        backgroundColor: const Color.fromARGB(255, 73, 182, 167),
         actions: [
           IconButton(
             icon: const Icon(
@@ -297,7 +301,7 @@ class _MyContactState extends State<MyContact> {
                   final contacts = snapshot.data!;
                   return _buildContactList(contacts);
                 } else {
-                  return Text('No contacts');
+                  return const Text('No contacts');
                 }
               },
             ),
@@ -319,9 +323,9 @@ class _MyContactState extends State<MyContact> {
             ),
           );
         },
-        child: Icon(Icons.add),
-        backgroundColor: Color.fromARGB(255, 73, 182, 167),
+        backgroundColor: const Color.fromARGB(255, 73, 182, 167),
         shape: const CircleBorder(),
+        child: const Icon(Icons.add),
       ),
     );
   }
