@@ -7,9 +7,6 @@ import 'package:my_contact/fetchUserData.dart';
 import 'package:my_contact/profile.dart';
 import 'package:my_contact/sendemail.dart';
 
-// Assuming you have a Contact class defined
-// import 'package:my_contact/contact.dart';
-
 enum ContactFilter { all, favourite }
 
 class MyContact extends StatefulWidget {
@@ -25,6 +22,7 @@ class _MyContactState extends State<MyContact> {
   List<Contact> _filteredContacts = [];
   final TextEditingController _searchController = TextEditingController();
   ContactFilter _currentFilter = ContactFilter.all;
+  final ContactDataSource dataSource = ContactDataSource();
 
   @override
   void initState() {
@@ -99,7 +97,7 @@ class _MyContactState extends State<MyContact> {
         : _allContacts.where((contact) => contact.isFav).toList();
 
     if (displayedContacts.isEmpty) {
-      return Text('No contacts');
+      return const Text('No contacts');
     }
 
     return ListView.builder(
@@ -207,6 +205,29 @@ class _MyContactState extends State<MyContact> {
     });
   }
 
+  void _onSearchTextChanged(String query) {
+    if (query.isEmpty) {
+      setState(() {
+        _filteredContacts.clear();
+      });
+    } else {
+      setState(() {
+        _filteredContacts = _allContacts.where((contact) {
+          final fullName = '${contact.firstName} ${contact.lastName}';
+          return fullName.toLowerCase().contains(query.toLowerCase());
+        }).toList();
+      });
+    }
+  }
+
+  void _refreshContacts() {
+    setState(() {
+      _contactFuture = fetchContacts();
+      _searchController.clear();
+      _filteredContacts.clear();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -303,28 +324,5 @@ class _MyContactState extends State<MyContact> {
         shape: const CircleBorder(),
       ),
     );
-  }
-
-  void _onSearchTextChanged(String query) {
-    if (query.isEmpty) {
-      setState(() {
-        _filteredContacts.clear();
-      });
-    } else {
-      setState(() {
-        _filteredContacts = _allContacts.where((contact) {
-          final fullName = '${contact.firstName} ${contact.lastName}';
-          return fullName.toLowerCase().contains(query.toLowerCase());
-        }).toList();
-      });
-    }
-  }
-
-  void _refreshContacts() {
-    setState(() {
-      _contactFuture = fetchContacts();
-      _searchController.clear();
-      _filteredContacts.clear();
-    });
   }
 }
