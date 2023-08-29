@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'dart:io';
@@ -103,7 +104,9 @@ class ProfileState extends State<Profile> {
               isFav: false, // Set isFav to an appropriate value
             ));
       } catch (error) {
-        print(error);
+        if (kDebugMode) {
+          print(error);
+        }
         // Handle error
       }
     }
@@ -124,7 +127,12 @@ class ProfileState extends State<Profile> {
               GestureDetector(
                 onTap: _pickImage,
                 child: _selectedImage != null
-                    ? Image.file(_selectedImage!)
+                    ? Image.file(
+                        _selectedImage!,
+                        width: 40,
+                        height: 40,
+                        fit: BoxFit.cover,
+                      )
                     : CircleAvatar(
                         radius: 40,
                         backgroundImage: NetworkImage(widget.initialAvatar),
