@@ -7,6 +7,7 @@ environment:
   sdk: ">=3.0.5 <4.0.0"
 
 dependencies:
+  cached_network_image: ^3.2.3
   flutter:
     sdk: flutter
   flutter_slidable: ^3.0.0
@@ -25,3 +26,4 @@ flutter:
 
   assets:
     - assets/images/paperplane.png
+    - assets/images/default_avatar.png

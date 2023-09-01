@@ -1,16 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'fetchUserData.dart';
 
 import 'profile.dart';
 
-class sendEmail extends StatefulWidget {
+class SendEmail extends StatefulWidget {
   final int contactId;
   final String initialEmail;
   final String initialFirstName;
   final String initialLastName;
   final String initialAvatar;
 
-  const sendEmail({
+  const SendEmail({
     Key? key,
     required this.contactId,
     required this.initialEmail,
@@ -20,10 +21,10 @@ class sendEmail extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _sendEmailState createState() => _sendEmailState();
+  _SendEmailState createState() => _SendEmailState();
 }
 
-class _sendEmailState extends State<sendEmail> {
+class _SendEmailState extends State<SendEmail> {
   void _sendEmail() async {
     String? encodeQueryParameters(Map<String, String> params) {
       return params.entries
@@ -67,11 +68,12 @@ class _sendEmailState extends State<sendEmail> {
         title: const Text('Send Email'),
       ),
       body: Center(
-          child: Column(
-        children: [
-          Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-            TextButton(
-              onPressed: () {
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            GestureDetector(
+              onTap: () {
                 // Navigate to the edit page.
                 Navigator.push(
                   context,
@@ -86,35 +88,31 @@ class _sendEmailState extends State<sendEmail> {
                   ),
                 );
               },
-              style: TextButton.styleFrom(
-                foregroundColor: Colors.blue,
+              child: CircleAvatar(
+                radius: 50,
+                backgroundImage: NetworkImage(widget.initialAvatar),
               ),
-              child: const Text('Edit'),
             ),
-          ]),
-          CircleAvatar(
-            radius: 50,
-            backgroundImage: NetworkImage(widget.initialAvatar),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            '${widget.initialFirstName} ${widget.initialLastName}',
-            style: const TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
+            const SizedBox(height: 16),
+            Text(
+              '${widget.initialFirstName} ${widget.initialLastName}',
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-          Text(
-            ' ${widget.initialEmail}',
-            style: const TextStyle(fontSize: 16),
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: _sendEmail,
-            child: const Text('Send Email'),
-          ),
-        ],
-      )),
+            Text(
+              widget.initialEmail,
+              style: const TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              onPressed: _sendEmail,
+              child: const Text('Send Email'),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

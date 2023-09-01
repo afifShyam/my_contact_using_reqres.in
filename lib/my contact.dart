@@ -7,6 +7,7 @@ import 'package:my_contact/addContact.dart';
 import 'package:my_contact/fetchUserData.dart';
 import 'package:my_contact/profile.dart';
 import 'package:my_contact/sendemail.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 enum ContactFilter { all, favourite }
 
@@ -29,6 +30,16 @@ class _MyContactState extends State<MyContact> {
   void initState() {
     super.initState();
     _contactFuture = fetchContacts();
+    _loadContacts();
+  }
+
+  Future<void> _loadContacts() async {
+    final contacts = await dataSource.loadContacts();
+    setState(() {
+      _allContacts = contacts;
+      _filteredContacts =
+          _allContacts.where((contact) => contact.isFav).toList();
+    });
   }
 
   Future<List<Contact>> fetchContacts() async {
@@ -52,6 +63,8 @@ class _MyContactState extends State<MyContact> {
         setState(() {
           _allContacts.removeWhere((contact) => contact.id == id);
           _filteredContacts.removeWhere((contact) => contact.id == id);
+
+          dataSource.saveContacts(_allContacts);
         });
       } else {
         throw Exception('Failed to delete contact');
@@ -79,10 +92,10 @@ class _MyContactState extends State<MyContact> {
 
     if (updatedContact != null) {
       setState(() {
-        // Find and update the contact in the list
         final index = _allContacts.indexWhere((c) => c.id == updatedContact.id);
         if (index != -1) {
           _allContacts[index] = updatedContact;
+          dataSource.saveContacts(_allContacts);
         }
       });
     }
@@ -100,7 +113,7 @@ class _MyContactState extends State<MyContact> {
         : _allContacts.where((contact) => contact.isFav).toList();
 
     if (displayedContacts.isEmpty) {
-      return const Text('No contacts');
+      return const Center(child: Text('No contacts'));
     }
 
     return ListView.builder(
@@ -108,16 +121,20 @@ class _MyContactState extends State<MyContact> {
       itemBuilder: (context, index) {
         final contact = displayedContacts[index];
         return Slidable(
-            startActionPane:
-                ActionPane(motion: const StretchMotion(), children: [
+          startActionPane: ActionPane(
+            motion: const StretchMotion(),
+            children: [
               SlidableAction(
                 backgroundColor: contact.isFav ? Colors.grey : Colors.purple,
                 icon: contact.isFav ? Icons.favorite : Icons.favorite_border,
                 label: 'Fav',
                 onPressed: (context) => _toggleFavorite(contact),
               ),
-            ]),
-            endActionPane: ActionPane(motion: const StretchMotion(), children: [
+            ],
+          ),
+          endActionPane: ActionPane(
+            motion: const StretchMotion(),
+            children: [
               SlidableAction(
                 backgroundColor: Colors.yellow,
                 icon: Icons.edit_square,
@@ -132,35 +149,37 @@ class _MyContactState extends State<MyContact> {
                 label: 'Delete',
                 onPressed: (context) => _onDismissed(contact),
               ),
-            ]),
-            child: ListTile(
-              leading: CircleAvatar(
-                backgroundImage: NetworkImage(contact.image),
-              ),
-              title: Text("${contact.firstName} ${contact.lastName}"),
-              subtitle: Text(contact.email),
-              trailing: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => sendEmail(
-                        contactId: contact.id,
-                        initialEmail: contact.email,
-                        initialFirstName: contact.firstName,
-                        initialLastName: contact.lastName,
-                        initialAvatar: contact.image,
-                      ),
+            ],
+          ),
+          child: ListTile(
+            leading: CircleAvatar(
+              backgroundImage: CachedNetworkImageProvider(contact.image),
+            ),
+            title: Text("${contact.firstName} ${contact.lastName}"),
+            subtitle: Text(contact.email),
+            trailing: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => SendEmail(
+                      contactId: contact.id,
+                      initialEmail: contact.email,
+                      initialFirstName: contact.firstName,
+                      initialLastName: contact.lastName,
+                      initialAvatar: contact.image,
                     ),
-                  );
-                },
-                child: Image.asset(
-                  'assets/images/paperplane.png',
-                  width: 40,
-                  height: 40,
-                ),
+                  ),
+                );
+              },
+              child: Image.asset(
+                'assets/images/paperplane.png',
+                width: 40,
+                height: 40,
               ),
-            ));
+            ),
+          ),
+        );
       },
     );
   }
@@ -206,6 +225,8 @@ class _MyContactState extends State<MyContact> {
         _filteredContacts[filteredIndex].isFav =
             !_filteredContacts[filteredIndex].isFav;
       }
+
+      dataSource.saveContacts(_allContacts);
     });
   }
 
@@ -224,12 +245,20 @@ class _MyContactState extends State<MyContact> {
     }
   }
 
-  void _refreshContacts() {
-    setState(() {
-      _contactFuture = fetchContacts();
-      _searchController.clear();
-      _filteredContacts.clear();
-    });
+  void _refreshContacts() async {
+    try {
+      final fetchedContacts = await fetchContacts();
+      setState(() {
+        _allContacts = fetchedContacts;
+        _filteredContacts.clear();
+        _searchController.clear();
+        dataSource.saveContacts(_allContacts);
+      });
+    } catch (error) {
+      if (kDebugMode) {
+        print(error);
+      }
+    }
   }
 
   @override
